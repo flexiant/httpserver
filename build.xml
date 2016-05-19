@@ -1,0 +1,72 @@
+<project name="patched_http"  basedir="." >
+
+	<property name="ROOT" value="." />
+	<property name="SRC" value="${ROOT}/src" />
+	<property name="BUILD" value="${ROOT}/build" />
+	
+	<property name="SERVICE" value="${ROOT}/service" />
+
+	<property name="JARFILE" value="${ant.project.name}.jar" />
+	<property name="MAIN_CLASS" value="TestHttp" />
+
+
+	<target name="init" >
+		<echo message="Initiating build environment..." />
+		<tstamp/>
+		<mkdir dir="${BUILD}" />
+		<mkdir dir="${DISTRO}"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${BUILD}"/>
+		<delete dir="${DISTRO}"/>
+	</target>	
+	
+	<!-- The compilation target -->
+	<target name="compile" depends="init" >
+
+		<echo message="Compiling ${ant.project.name}..." />
+		<mkdir dir="${BUILD}/service" />
+		
+		<!-- actually compile -->
+		<javac srcdir="${SRC}" 
+			destdir="${BUILD}/service" 
+			nowarn="yes" 
+			source="1.6" 
+			target="1.6" 
+			includeAntRuntime="no" 
+			debug="true" 
+			debuglevel="lines,vars,source">
+			<compilerarg value="-XDignore.symbol.file=true"/>		
+		</javac>
+
+	</target>
+
+
+	<target name="build-server" depends="compile">
+		<mkdir dir="${SERVICE}" />
+		
+
+		<tstamp>
+			<format property="build.time" pattern="EEE, d MMM yyyy HH:mm:ss" />
+		</tstamp>
+
+
+		<jar destfile="${SERVICE}/${JARFILE}">
+		<!--	<service type="com.sun.net.httpserver.spi.HttpServerProvider"
+				provider="patched.sun.net.httpserver.DefaultHttpServerProvider"/> -->
+			
+			<fileset dir="${BUILD}/service" />
+			
+			<manifest>
+				<attribute name="Build-Time" value="${build.time}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Class-Path" value="${jar.classpath}" />
+				<attribute name="Main-Class" value="${MAIN_CLASS}" />
+			</manifest>
+				
+		</jar>
+
+	</target>
+	
+</project>
